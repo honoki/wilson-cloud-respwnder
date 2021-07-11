@@ -1,0 +1,2 @@
+# add all domain names you don't want to show up in your alerts
+blacklist.example.com

@@ -1,0 +1,51 @@
+version: "3.9"
+services:
+  mitmdump:
+    image: mitmproxy/mitmproxy
+    hostname: mitmproxy
+    env_file: settings.env
+    volumes:
+      - ./data/:/data/
+      - ./mitm/log_http_requests.py:/log_http_requests.py
+      - ./logs/mitm/http.log:/http.log
+    command: sh -c "pip install requests && mitmdump -q -s /log_http_requests.py --mode reverse:http://nginx-server:8000 -p 30001 --set block_global=false"
+  server:
+    image: nginx
+    hostname: nginx-server
+    ports:
+     - "443:443"
+     - "8443:443"
+     - "80:80"
+     - "8080:80"
+     # add your own port mapping here if you want to listen on other non-standard ports too
+    volumes:
+      - ./www/:/var/www/html/
+      - ./conf/nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+      - ./keys/:/etc/nginx/keys/
+      - ./conf/nginx/docker-entrypoint.d/:/docker-entrypoint.d/
+    depends_on:
+      - mitmdump
+    links:
+      - php
+  php:
+    image: php:7-fpm
+    env_file: settings.env
+    volumes:
+      - ./data/:/data/
+      - ./www/:/var/www/html/
+  dns:
+    image: internetsystemsconsortium/bind9:9.16
+    restart: always
+    ports:
+      - "5300:53/udp"
+      - "5300:53/tcp"
+    env_file: settings.env
+    volumes:
+      - ./data/:/data/
+      - ./dns/monitor.py:/monitor.py
+      - ./conf/bind9/named.conf.local:/etc/bind/named.conf.local
+      - ./conf/bind9/named.conf.options:/etc/bind/named.conf.options
+      - ./conf/bind9/named.conf:/etc/bind/named.conf
+      - ./dns/zonefile.db:/var/cache/bind/zonefile.db
+      - ./logs/dns/:/var/log/named/
+    command: sh -c '(python3 /monitor.py &) && /usr/sbin/named -f -c /etc/bind/named.conf -u bind'
