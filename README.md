@@ -19,21 +19,22 @@ When exploiting bugs that interact with an external server (e.g. SSRF or some XS
 * A full NGINX server is at your disposal for advanced configuration options;
 * A full bind9 DNS server allows you to host arbitrary DNS records for advanced test cases;
 
-## Limitations
-
-* No support for protocols other than HTTP and DNS;
-* Due to limitations of Slack and Discord notifications, HTTP requests are truncated if the request body is larger than ~2KB or ~3KB respectively. Full HTTP messages can be viewed in `/logs/mitm/http.log` when that happens;
-
-
 ## Installation
 
 WILSON Cloud Respwnder requires you to have a registered domain `yourdomain.com` with its nameserver(s) pointing to the server where you're installing this.
 
 1. Clone this repository: `git clone https://github.com/honoki/wilson-cloud-respwnder`;
 2. Run `./setup.sh yourdomain.com` to generate the required config files;
-3. Step through the required steps to generate your Letsencrypt certificate;
+3. Follow the steps to generate your LetsEncrypt certificate;
 4. Edit `settings.env` to include your Slack and/or Discord webhooks;
-5. Run `sudo docker-compose up`
+5. Run `sudo docker-compose up -d`
+6. Test if things are working by browsing to `https://random-subdomain.yourdomain.com/randompage`
+
+## Limitations
+
+* No support for protocols other than HTTP and DNS;
+* Due to limitations of Slack and Discord notifications, HTTP requests are truncated if the request body is larger than ~2KB or ~3KB respectively. Full HTTP messages can be viewed in `/logs/mitm/http.log` when that happens;
+* Nested subdomains (e.g. `test.sub.yourdomain.com`) will resolve to your server, but will not automatically have a valid certificate due to limitations of LetsEncrypt. This means HTTP requests will work as expected, but HTTPS requests will likely fail.
 
 ## Acknowledgments
 

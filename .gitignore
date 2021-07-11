@@ -1,0 +1,9 @@
+conf/bind9/named.conf.local
+conf/nginx/nginx.conf
+dns/zonefile.db
+keys/*
+logs/dns/queries.log
+logs/mitm/http.log
+/www/*
+!/www/index.php
+settings.env
