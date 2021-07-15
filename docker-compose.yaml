@@ -37,8 +37,8 @@ services:
     image: internetsystemsconsortium/bind9:9.16
     restart: always
     ports:
-      - "5300:53/udp"
-      - "5300:53/tcp"
+      - "53:53/udp"
+      - "53:53/tcp"
     env_file: settings.env
     volumes:
       - ./data/:/data/
@@ -48,4 +48,4 @@ services:
       - ./conf/bind9/named.conf:/etc/bind/named.conf
       - ./dns/zonefile.db:/var/cache/bind/zonefile.db
       - ./logs/dns/:/var/log/named/
-    command: sh -c '(python3 /monitor.py &) && /usr/sbin/named -f -c /etc/bind/named.conf -u bind'
+    command: sh -c 'chown bind:bind /var/log/named/ && (python3 /monitor.py &) && /usr/sbin/named -f -c /etc/bind/named.conf -u bind'
