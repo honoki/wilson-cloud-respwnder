@@ -64,4 +64,4 @@ services:
         source: ./dns/zonefile.db
         target: /var/cache/bind/zonefile.db
       - ./logs/dns/:/var/log/named/
-    command: sh -c 'apt update && apt install -y python3-pip && pip install requests && chown bind:bind /var/log/named/ && (python3 /monitor.py &) && /usr/sbin/named -f -c /etc/bind/named.conf -u bind'
+    command: sh -c 'apt update && apt install -y python3-pip && pip install ipwhois requests && chown bind:bind /var/log/named/ && (python3 /monitor.py &) && /usr/sbin/named -f -c /etc/bind/named.conf -u bind'
