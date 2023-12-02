@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 import os, requests
 from multiprocessing.dummy import Pool
+from ipwhois import IPWhois
 
 def is_blacklisted(domain):
     blacklist  = open("/data/blacklist.txt")
@@ -44,17 +45,19 @@ def request(flow):
     req = req.replace('http:', 'hxxp:')
     req = req.replace('https:', 'hxxps:')
 
-
+    # get the origin country
+    from_country = IPWhois(fromip).lookup_whois()['asn_country_code'].lower()
+    
     slack_msg = {
         "text": "["+proto+"] "+host+flow.request.path,
         "blocks":[
-            {"type":"section","text":{"type":"mrkdwn","text":"["+proto+"] request from `"+fromip+"` to `"+escape_domain(host)+flow.request.path+"`"}},
+            {"type":"section","text":{"type":"mrkdwn","text":"["+proto+"] request from `"+fromip+"` :flag-"+from_country+": to `"+escape_domain(host)+flow.request.path+"`"}},
             {"type":"section","text":{"type":"mrkdwn","text":"```"+req[:2500]+("[...]" if len(req) > 2500 else "") + "```"}}
         ]
     }
 
     discord_msg = {
-        "content": "["+proto+"] request from `"+fromip+"` to `"+escape_domain(host)+flow.request.path+"`",
+        "content": "["+proto+"] request from `"+fromip+"` :flag-"+from_country+": to `"+escape_domain(host)+flow.request.path+"`",
         "embeds": [{
             "description": "```"+req[:3500]+("[...]" if len(req) > 3500 else "")+"```"
         }]
