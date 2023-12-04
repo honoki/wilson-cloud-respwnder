@@ -12,7 +12,7 @@ services:
       - type: bind
         source: ./logs/mitm/http.log
         target: /http.log
-    command: sh -c "pip install requests && mitmdump -q -s /log_http_requests.py --mode reverse:http://nginx-server:8000 -p 30001 --set block_global=false"
+    command: sh -c "pip install ipwhois requests && mitmdump -q -s /log_http_requests.py --mode reverse:http://nginx-server:8000 -p 30001 --set block_global=false"
   server:
     image: nginx
     hostname: nginx-server
@@ -64,4 +64,4 @@ services:
         source: ./dns/zonefile.db
         target: /var/cache/bind/zonefile.db
       - ./logs/dns/:/var/log/named/
-    command: sh -c 'apt update && apt install -y python3-pip && pip install ipwhois requests && chown bind:bind /var/log/named/ && (python3 /monitor.py &) && /usr/sbin/named -f -c /etc/bind/named.conf -u bind'
+    command: sh -c 'apt update && apt install -y python3-pip && pip install requests && chown bind:bind /var/log/named/ && (python3 /monitor.py &) && /usr/sbin/named -f -c /etc/bind/named.conf -u bind'
