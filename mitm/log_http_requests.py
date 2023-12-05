@@ -10,6 +10,10 @@ def is_blacklisted(domain):
 def escape_domain(domain):
     return domain.replace(os.environ.get('DOMAIN'), '[.]'.join(os.environ.get('DOMAIN').rsplit('.', 1)))
 
+message = "[WILSON] HTTP server deployed and listening on `http(s)://*."+os.environ.get('DOMAIN')+"`"
+requests.post( os.environ.get('DISCORD_WEBHOOK'), json = { 'content': message } ) if os.environ.get('DISCORD_WEBHOOK') else False
+requests.post( os.environ.get('SLACK_WEBHOOK'), json = {'text': message} ) if os.environ.get('SLACK_WEBHOOK') else False
+
 def request(flow):
     req = flow.request.method + ' ' + flow.request.path + ' ' + flow.request.http_version + '\n'
 
