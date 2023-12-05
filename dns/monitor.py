@@ -26,6 +26,11 @@ def watch(fn):
 
 queries = '/var/log/named/queries.log'
 
+# Send a message to say we're up and running
+message = "[WILSON] DNS server deployed and listening on `*."+os.environ.get('DOMAIN')+"`"
+requests.post( os.environ.get('DISCORD_WEBHOOK'), json = { 'content': message } ) if os.environ.get('DISCORD_WEBHOOK') else False
+requests.post( os.environ.get('SLACK_WEBHOOK'), json = {'text': message} ) if os.environ.get('SLACK_WEBHOOK') else False
+
 # wrap a while loop around this to retry after an error occurred in watch(queries)
 while True:
     for domain, type, fromip in watch(queries):
