@@ -28,6 +28,11 @@ server {
 	root /var/www/html/;
 	index index.php;
 
+	# disable this if you want to serve .git from your www directory
+	location ~ /\.git {
+           deny all;
+        }
+
 	location / {
 		
 		try_files $uri /catchall;
