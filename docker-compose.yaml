@@ -40,7 +40,7 @@ services:
       - ./data/:/data/
       - ./www/:/var/www/html/
   dns:
-    image: internetsystemsconsortium/bind9:9.16
+    image: internetsystemsconsortium/bind9:9.18
     restart: always
     ports:
       - "53:53/udp"
