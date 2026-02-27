@@ -1,10 +1,10 @@
 (acme_dns) {
     tls {
         dns rfc2136 {
-            nameserver     dns:53
-            tsig_keyname   acme-key
-            tsig_secret    {env.TSIG_SECRET}
-            tsig_algorithm hmac-sha256.
+            key_name acme-key
+            key_alg  hmac-sha256
+            key      {env.TSIG_SECRET}
+            server   dns:53
         }
     }
 }

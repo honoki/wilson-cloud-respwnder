@@ -1,4 +1,3 @@
-version: "3.9"
 services:
   mitmdump:
     image: mitmproxy/mitmproxy
@@ -12,7 +11,7 @@ services:
       - type: bind
         source: ./logs/mitm/http.log
         target: /http.log
-    command: sh -c "pip install ipwhois requests && mitmdump -q -s /log_http_requests.py --mode reverse:http://nginx-server:8000 -p 30001 --set block_global=false"
+    command: sh -c "pip install --upgrade pip && pip install ipwhois requests && mitmdump -q -s /log_http_requests.py --mode reverse:http://nginx-server:8000 -p 30001 --set block_global=false"
   server:
     build: conf/caddy
     hostname: nginx-server
