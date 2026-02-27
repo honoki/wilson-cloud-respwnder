@@ -14,7 +14,7 @@ services:
         target: /http.log
     command: sh -c "pip install ipwhois requests && mitmdump -q -s /log_http_requests.py --mode reverse:http://nginx-server:8000 -p 30001 --set block_global=false"
   server:
-    image: nginx
+    image: caddy
     hostname: nginx-server
     ports:
      - "443:443"
@@ -25,10 +25,9 @@ services:
     volumes:
       - ./www/:/var/www/html/
       - type: bind
-        source: ./conf/nginx/nginx.conf
-        target: /etc/nginx/conf.d/default.conf
-      - ./keys/:/etc/nginx/keys/
-      - ./conf/nginx/docker-entrypoint.d/:/docker-entrypoint.d/
+        source: ./conf/caddy/Caddyfile
+        target: /etc/caddy/Caddyfile
+      - caddy_data:/data
     depends_on:
       - mitmdump
     links:
@@ -65,3 +64,6 @@ services:
         target: /var/cache/bind/zonefile.db
       - ./logs/dns/:/var/log/named/
     command: sh -c 'touch /var/log/named/queries.log && chown bind:bind /var/log/named/queries.log && apt -y update && apt -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" upgrade && apt install -y python3-pip && pip install requests && chown bind:bind /var/log/named/ && (python3 /monitor.py &) && /usr/sbin/named -f -c /etc/bind/named.conf -u bind'
+
+volumes:
+  caddy_data:

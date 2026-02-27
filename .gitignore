@@ -1,9 +1,10 @@
 conf/bind9/named.conf.local
 conf/nginx/nginx.conf
+conf/caddy/Caddyfile
 dns/zonefile.db
-keys/*
 logs/dns/queries.log
 logs/mitm/http.log
 /www/*
 !/www/index.php
+!/www/info.html
 settings.env

@@ -18,13 +18,9 @@ echo "DISCORD_WEBHOOK=" >> settings.env
 echo "DOMAIN="$DOMAIN_NAME >> settings.env
 
 echo "Generating config files..."
-sed "s/example.com/$DOMAIN_NAME/g" ./conf/nginx/nginx.conf.tpl > ./conf/nginx/nginx.conf
+sed "s/example.com/$DOMAIN_NAME/g" ./conf/caddy/Caddyfile.tpl > ./conf/caddy/Caddyfile
 sed "s/example.com/$DOMAIN_NAME/g" ./conf/bind9/named.conf.local.tpl > ./conf/bind9/named.conf.local
 sed -e "s/example.com/$DOMAIN_NAME/g;s/1.1.1.1/$PUBLIC_IP/g" ./dns/zonefile.db.tpl > ./dns/zonefile.db
 
-echo "Trying to generate SSL certificates with letsencrypt."
-certbot -d "*.$DOMAIN_NAME" certonly --standalone
-echo "Copying certificates to docker volume"
-cp /etc/letsencrypt/live/$DOMAIN_NAME/{fullchain.pem,privkey.pem} ./keys/
-
 echo "Setup complete. Add your webhooks in 'settings.env'. Run 'docker-compose up -d' to get started."
+echo "Caddy will automatically obtain and renew TLS certificates on first startup."

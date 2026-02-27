@@ -22,10 +22,10 @@ def request(flow):
     proto = 'http'
 
     for k, v in flow.request.headers.items():
-        if k == 'X-MITMProxy-Real-IP':
+        if k.lower() == 'x-mitmproxy-real-ip':
             fromip = v
             continue
-        if k == 'X-MITMProxy-Real-Proto':
+        if k.lower() == 'x-mitmproxy-real-proto':
             proto = v
             continue
         if k.lower() == 'host' and v == 'localhost':
@@ -34,7 +34,7 @@ def request(flow):
         if k.lower() == 'host' and v == 'nginx-server:8000':
             continue
         # and put the proxied X-MITMProxy-Host back where it belongs
-        if k == 'X-MITMProxy-Host':
+        if k.lower() == 'x-mitmproxy-host':
             host = v
             if is_blacklisted(v):
                 return
@@ -50,18 +50,23 @@ def request(flow):
     req = req.replace('https:', 'hxxps:')
 
     # get the origin country
-    from_country = IPWhois(fromip).lookup_whois()['asn_country_code'].lower()
+    try:
+        from_country = IPWhois(fromip).lookup_whois()['asn_country_code'].lower()
+    except Exception:
+        from_country = None
     
+    flag = (":flag-"+from_country+":") if from_country else ""
+
     slack_msg = {
         "text": "["+proto+"] "+host+flow.request.path,
         "blocks":[
-            {"type":"section","text":{"type":"mrkdwn","text":"["+proto+"] request from `"+fromip+"` :flag-"+from_country+": to `"+escape_domain(host)+flow.request.path+"`"}},
+            {"type":"section","text":{"type":"mrkdwn","text":"["+proto+"] request from `"+fromip+"` "+flag+" to `"+escape_domain(host)+flow.request.path+"`"}},
             {"type":"section","text":{"type":"mrkdwn","text":"```"+req[:2500]+("[...]" if len(req) > 2500 else "") + "```"}}
         ]
     }
 
     discord_msg = {
-        "content": "["+proto+"] request from `"+fromip+"` :flag-"+from_country+": to `"+escape_domain(host)+flow.request.path+"`",
+        "content": "["+proto+"] request from `"+fromip+"` "+flag.replace('-','_')+" to `"+escape_domain(host)+flow.request.path+"`",
         "embeds": [{
             "description": "```"+req[:3500]+("[...]" if len(req) > 3500 else "")+"```"
         }]
