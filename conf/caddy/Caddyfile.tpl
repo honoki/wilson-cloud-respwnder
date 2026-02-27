@@ -73,11 +73,23 @@ http://*.example.com {
     header @cors Access-Control-Allow-Headers  "DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Pragma,x-xsrf-token,x-session-id"
     header @cors Access-Control-Expose-Headers "Content-Length,Content-Range"
 
-    # PHP with try_files → /index.php fallback (replaces try_files + /catchall)
-    php_fastcgi php:9000
+    # Rewrite non-existing paths to /index.php
+    @notFound not file {path} {path}/
+    rewrite @notFound /index.php
 
-    # Catchall: 403/404/405 → index.php with 200
-    handle_errors 403 404 405 {
+    # Pass .php files to PHP-FPM
+    @php path *.php
+    reverse_proxy @php php:9000 {
+        transport fastcgi {
+            split .php
+        }
+    }
+
+    # Serve static files (html, css, js, images, etc.)
+    file_server
+
+    # 403/405 → index.php
+    handle_errors 403 405 {
         rewrite * /index.php
         php_fastcgi php:9000
     }
