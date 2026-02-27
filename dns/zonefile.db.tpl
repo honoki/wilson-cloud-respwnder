@@ -12,6 +12,7 @@ $TTL 3D
                         1D )            ; minimum, seconds
 ;
             NS      ns              ; Inet Address of name server
+@           A       1.1.1.1
 ns          A       1.1.1.1
 *           A       1.1.1.1
 *.sub       A       1.1.1.1

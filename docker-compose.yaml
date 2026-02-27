@@ -14,8 +14,9 @@ services:
         target: /http.log
     command: sh -c "pip install ipwhois requests && mitmdump -q -s /log_http_requests.py --mode reverse:http://nginx-server:8000 -p 30001 --set block_global=false"
   server:
-    image: caddy
+    build: conf/caddy
     hostname: nginx-server
+    env_file: settings.env
     ports:
      - "443:443"
      - "8443:443"

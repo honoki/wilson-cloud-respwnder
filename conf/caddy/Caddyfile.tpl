@@ -1,3 +1,14 @@
+(acme_dns) {
+    tls {
+        dns rfc2136 {
+            nameserver     dns:53
+            tsig_keyname   acme-key
+            tsig_secret    {env.TSIG_SECRET}
+            tsig_algorithm hmac-sha256.
+        }
+    }
+}
+
 (mitm_proxy) {
     header -Server
     reverse_proxy mitmproxy:30001 {
@@ -15,6 +26,7 @@
 
 # Apex domain: info page
 example.com {
+    import acme_dns
     root * /var/www/html/
     rewrite * /info.html
     file_server
@@ -28,6 +40,7 @@ http://example.com {
 
 # Front-end proxy: intercept all traffic, forward to mitmproxy
 *.example.com {
+    import acme_dns
     import mitm_proxy
 }
 
