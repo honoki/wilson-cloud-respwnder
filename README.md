@@ -1,6 +1,6 @@
 # WILSON Cloud Respwnder
 
-[![Twitter Follow](https://img.shields.io/twitter/follow/honoki?style=flat-square)](https://twitter.com/honoki)
+[![Bluesky Follow](https://img.shields.io/badge/Bluesky-@honoki.net-blue?style=flat-square&logo=bluesky)](https://bsky.app/profile/honoki.net)
 
 ## What is this?
 
@@ -16,7 +16,7 @@ When exploiting bugs that interact with an external server (e.g. SSRF or some XS
 * By default resolves every `subdomain.yourdomain.com` to the same web server, allowing you to choose meaningful names that are easy to work with;
 * Filter out specific domains from cluttering your notifications by adding them to `/data/blacklist.txt`;
 * Modify and serve your own content on the PHP web server by writing files to `/www`;
-* A full NGINX server is at your disposal for advanced configuration options;
+* A full Caddy server with automatic TLS certificate management is at your disposal for advanced configuration options;
 * A full bind9 DNS server allows you to host arbitrary DNS records for advanced test cases;
 
 ## Installation
@@ -25,16 +25,17 @@ WILSON Cloud Respwnder requires you to have a registered domain `yourdomain.com`
 
 1. Clone this repository: `git clone https://github.com/honoki/wilson-cloud-respwnder`;
 2. Run `./setup.sh yourdomain.com` to generate the required config files;
-3. Follow the steps to generate your LetsEncrypt certificate;
-4. Edit `settings.env` to include your Slack and/or Discord webhooks;
-5. Run `sudo docker-compose up -d`
-6. Test if things are working by browsing to `https://random-subdomain.yourdomain.com/randompage`
+3. Edit `settings.env` to include your Slack and/or Discord webhooks;
+4. Run `sudo docker compose up -d --build`
+5. Test if things are working by browsing to `https://random-subdomain.yourdomain.com/randompage`
+
+TLS certificates for `yourdomain.com` and `*.yourdomain.com` are obtained automatically from Let's Encrypt via DNS-01 challenge on first startup. No manual certificate management is required.
 
 ## Limitations
 
 * No support for protocols other than HTTP and DNS;
 * Due to limitations of Slack and Discord notifications, HTTP requests are truncated if the request body is larger than ~2KB or ~3KB respectively. Full HTTP messages can be viewed in `/logs/mitm/http.log` when that happens;
-* Nested subdomains (e.g. `test.sub.yourdomain.com`) will resolve to your server, but will not automatically have a valid certificate due to limitations of LetsEncrypt. This means HTTP requests will work as expected, but HTTPS requests will likely fail.
+* Nested subdomains (e.g. `test.sub.yourdomain.com`) will resolve to your server, but are not covered by the wildcard certificate (`*.yourdomain.com` only covers one level deep). HTTP requests will work as expected, but HTTPS requests may fail.
 
 ## Acknowledgments
 
