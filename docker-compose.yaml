@@ -65,5 +65,20 @@ services:
       - ./logs/dns/:/var/log/named/
     command: sh -c 'touch /var/log/named/queries.log && chown bind:bind /var/log/named/queries.log && apt -y update && apt -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" upgrade && apt install -y python3-pip && pip install requests && chown bind:bind /var/log/named/ && (python3 /monitor.py &) && /usr/sbin/named -f -c /etc/bind/named.conf -u bind'
 
+  smtp:
+    image: python:3.11-slim
+    hostname: smtp-server
+    env_file: settings.env
+    ports:
+      - "25:25"
+    volumes:
+      - type: bind
+        source: ./smtp/log_smtp.py
+        target: /log_smtp.py
+      - type: bind
+        source: ./logs/smtp/smtp.log
+        target: /smtp.log
+    command: sh -c "pip install aiosmtpd ipwhois requests && python /log_smtp.py"
+
 volumes:
   caddy_data:

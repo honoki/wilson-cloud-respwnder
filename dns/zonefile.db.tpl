@@ -18,3 +18,6 @@ ns          A       1.1.1.1
 *.sub       A       1.1.1.1
 *           TXT     "I'm a custom text record"
 test.sub    TXT     "ohyeah"
+
+@           MX      10      ns
+*           MX      10      ns
