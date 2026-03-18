@@ -106,4 +106,6 @@ if __name__ == '__main__':
     controller = Controller(EmailHandler(), hostname='0.0.0.0', port=port)
     controller.start()
     print(f"[WILSON] SMTP server listening on port {port} for *@*.{DOMAIN}")
-    asyncio.get_event_loop().run_forever()
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    loop.run_forever()
