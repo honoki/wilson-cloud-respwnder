@@ -73,6 +73,13 @@ http://*.example.com {
     header @cors Access-Control-Allow-Headers  "DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Pragma,x-xsrf-token,x-session-id"
     header @cors Access-Control-Expose-Headers "Content-Length,Content-Range"
 
+    # Directory requests → index.php in that directory (e.g. / → /index.php)
+    @dirIndex {
+        path */
+        file {path}index.php
+    }
+    rewrite @dirIndex {path}index.php
+
     # Rewrite non-existing paths to /index.php
     @notFound not file {path} {path}/
     rewrite @notFound /index.php
