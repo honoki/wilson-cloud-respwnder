@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import asyncio, os, email, email.policy, requests, datetime
+import asyncio, os, email, email.policy, requests, datetime, json
 from aiosmtpd.controller import Controller
 from ipwhois import IPWhois
 
@@ -68,9 +68,8 @@ class EmailHandler:
             f"{'='*60}\n"
         )
 
-        # defang URLs
-        display_raw = raw.replace('http:', 'hxxp:').replace('https:', 'hxxps:')
-        truncated = display_raw[:2500] + ("[...]" if len(display_raw) > 2500 else "")
+        body = extract_body(msg)
+        body_preview = body[:1200].replace('`', "'") + ("…" if len(body) > 1200 else "")
 
         if SLACK_WEBHOOK:
             try:
@@ -80,7 +79,7 @@ class EmailHandler:
                         {"type": "section", "text": {"type": "mrkdwn",
                             "text": f"[smtp] email from `{mail_from}` (`{peer_ip}` {flag}) to `{escape_domain(recipients)}`\nSubject: *{subject}*"}},
                         {"type": "section", "text": {"type": "mrkdwn",
-                            "text": "```" + truncated + "```"}}
+                            "text": "```" + body_preview + "```"}}
                     ]
                 })
             except Exception:
@@ -88,10 +87,21 @@ class EmailHandler:
 
         if DISCORD_WEBHOOK:
             try:
-                requests.post(DISCORD_WEBHOOK, json={
-                    "content": f"[smtp] email from `{mail_from}` (`{peer_ip}` {flag.replace('-', '_')}) to `{escape_domain(recipients)}`\nSubject: **{subject}**",
-                    "embeds": [{"description": "```" + display_raw[:3500] + ("[...]" if len(display_raw) > 3500 else "") + "```"}]
-                })
+                embed = {
+                    "title": subject or "(no subject)",
+                    "fields": [
+                        {"name": "From", "value": f"`{mail_from}`", "inline": True},
+                        {"name": "To", "value": f"`{escape_domain(recipients)}`", "inline": True},
+                        {"name": "IP", "value": f"`{peer_ip}` {flag.replace('-', '_')}", "inline": True},
+                        {"name": "Date", "value": msg.get('Date', 'unknown'), "inline": True},
+                    ],
+                    "description": "```" + body_preview + "```",
+                }
+                requests.post(
+                    DISCORD_WEBHOOK,
+                    data={"payload_json": json.dumps({"embeds": [embed]})},
+                    files={"file": ("email.eml", envelope.content, "message/rfc822")},
+                )
             except Exception:
                 pass
 
