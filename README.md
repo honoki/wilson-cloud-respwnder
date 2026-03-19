@@ -10,9 +10,10 @@ When exploiting bugs that interact with an external server (e.g. SSRF or some XS
 
 ## Features
 
-* Monitor DNS and HTTP requests in real-time without time window constraints. Continue receiving notifications for weeks or months on end to find more bugs;
+* Monitor DNS, HTTP, and SMTP requests in real-time without time window constraints. Continue receiving notifications for weeks or months on end to find more bugs;
 * Send notifications to Slack and/or Discord webhooks;
 * View the complete HTTP requests in your logs, including POST bodies;
+* Capture inbound emails to any `*@subdomain.yourdomain.com` address — sender, subject, and body are sent to Discord/Slack, with the raw `.eml` attached;
 * By default resolves every `subdomain.yourdomain.com` to the same web server, allowing you to choose meaningful names that are easy to work with;
 * Filter out specific domains from cluttering your notifications by adding them to `/data/blacklist.txt`;
 * Modify and serve your own content on the PHP web server by writing files to `/www`;
@@ -33,7 +34,7 @@ TLS certificates for `yourdomain.com` and `*.yourdomain.com` are obtained automa
 
 ## Limitations
 
-* No support for protocols other than HTTP and DNS;
+* SMTP logging requires port 25 to be open inbound. Some cloud providers block port 25 by default — you may need to request it be unblocked via a support ticket;
 * Due to limitations of Slack and Discord notifications, HTTP requests are truncated if the request body is larger than ~2KB or ~3KB respectively. Full HTTP messages can be viewed in `/logs/mitm/http.log` when that happens;
 * Nested subdomains (e.g. `test.sub.yourdomain.com`) will resolve to your server, but are not covered by the wildcard certificate (`*.yourdomain.com` only covers one level deep). HTTP requests will work as expected, but HTTPS requests may fail.
 
